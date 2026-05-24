@@ -43,100 +43,112 @@
         </div>
     </div>
 
-    {{-- ===== FILTER KATEGORI (Pertemuan 6) ===== --}}
+    {{-- Filter kategori --}}
     <div class="flex flex-wrap gap-3 mb-10">
-        {{-- Tombol "Semua Kategori" --}}
         <a href="{{ route('home') }}"
-            class="px-5 py-2.5 rounded-xl font-bold transition border-2
-            {{ $activeCategory == '' ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-600 border-slate-200 hover:border-indigo-400 hover:text-indigo-600' }}">
-            Semua Kategori
+           class="px-5 py-2.5 rounded-xl font-bold transition border-2
+           {{ $activeCategory == '' ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-600 border-slate-200 hover:border-indigo-400 hover:text-indigo-600' }}">
+           Semua Kategori
         </a>
-
-        {{-- Tombol per Kategori (dinamis dari database) --}}
         @foreach($categories as $cat)
         <a href="{{ route('home', ['category' => $cat->slug]) }}"
-            class="px-5 py-2.5 rounded-xl font-bold transition border-2
-            {{ $activeCategory == $cat->slug ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-600 border-slate-200 hover:border-indigo-400 hover:text-indigo-600' }}">
-            {{ $cat->name }}
+           class="px-5 py-2.5 rounded-xl font-bold transition border-2
+           {{ $activeCategory == $cat->slug ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-600 border-slate-200 hover:border-indigo-400 hover:text-indigo-600' }}">
+           {{ $cat->name }}
         </a>
         @endforeach
     </div>
 
-    {{-- ===== GRID EVENT CARDS ===== --}}
+    {{-- Grid Event --}}
     @if($events->isEmpty())
-    <div class="text-center py-20">
-        <div class="text-6xl mb-4">😕</div>
-        <h3 class="text-2xl font-bold text-slate-700 mb-2">Tidak ada event ditemukan</h3>
-        <p class="text-slate-500 mb-6">Coba pilih kategori lain atau lihat semua event.</p>
-        <a href="{{ route('home') }}" class="px-6 py-3 bg-indigo-600 text-white rounded-2xl font-bold hover:bg-indigo-700 transition">
-            Lihat Semua Event
-        </a>
-    </div>
-    @else
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        @foreach($events as $event)
-        <div class="group bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-300 overflow-hidden">
-            {{-- Poster --}}
-            <div class="relative overflow-hidden aspect-[3/4]">
-                @if($event->poster_path)
-                    <img src="{{ asset('storage/' . $event->poster_path) }}"
-                        alt="{{ $event->title }}"
-                        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                @else
-                    <div class="w-full h-full bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
-                        <span class="text-6xl">🎪</span>
-                    </div>
-                @endif
-
-                {{-- Badge Kategori --}}
-                <div class="absolute top-4 left-4 px-3 py-1 bg-white/90 backdrop-blur rounded-lg text-xs font-bold uppercase text-indigo-600">
-                    {{ $event->category->name ?? 'Event' }}
-                </div>
-
-                {{-- Badge Gratis --}}
-                @if($event->price == 0)
-                <div class="absolute top-4 right-4 px-3 py-1 bg-green-500 text-white rounded-lg text-xs font-bold uppercase">
-                    GRATIS
-                </div>
-                @endif
-            </div>
-
-            {{-- Konten Card --}}
-            <div class="p-6">
-                <h3 class="text-xl font-bold mb-2 group-hover:text-indigo-600 transition leading-tight">
-                    {{ $event->title }}
-                </h3>
-                <div class="flex items-center gap-2 text-slate-500 text-sm mb-1">
-                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                    </svg>
-                    <span>{{ \Carbon\Carbon::parse($event->date)->format('d M Y, H:i') }} WIB</span>
-                </div>
-                <div class="flex items-center gap-2 text-slate-500 text-sm mb-4">
-                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                    </svg>
-                    <span>{{ $event->location }}</span>
-                </div>
-                <div class="flex justify-between items-center pt-4 border-t">
-                    <div>
-                        <span class="text-2xl font-black text-indigo-600">
-                            {{ $event->price == 0 ? 'GRATIS' : 'Rp ' . number_format($event->price, 0, ',', '.') }}
-                        </span>
-                        <p class="text-xs text-slate-400">{{ $event->stock }} tiket tersisa</p>
-                    </div>
-                    <a href="{{ route('events.show', $event->id) }}"
-                        class="px-5 py-2 bg-indigo-50 text-indigo-600 rounded-xl font-bold hover:bg-indigo-600 hover:text-white transition">
-                        Lihat Detail
-                    </a>
-                </div>
-            </div>
+        <div class="text-center py-20">
+            <div class="text-6xl mb-4">😕</div>
+            <h3 class="text-2xl font-bold text-slate-700 mb-2">Tidak ada event ditemukan</h3>
+            <p class="text-slate-500 mb-6">Coba pilih kategori lain atau lihat semua event.</p>
+            <a href="{{ route('home') }}" class="px-6 py-3 bg-indigo-600 text-white rounded-2xl font-bold hover:bg-indigo-700 transition">
+                Lihat Semua Event
+            </a>
         </div>
-        @endforeach
-    </div>
+    @else
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            @foreach($events as $event)
+                <div class="group bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-300 overflow-hidden">
+                    <div class="relative overflow-hidden aspect-[3/4]">
+                        @if($event->poster_path)
+                            <img src="{{ asset('storage/' . $event->poster_path) }}"
+                                 alt="{{ $event->title }}"
+                                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                        @else
+                            <div class="w-full h-full bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center">
+                                <span class="text-6xl">🎪</span>
+                            </div>
+                        @endif
+                        <div class="absolute top-4 left-4 px-3 py-1 bg-white/90 rounded-lg text-xs font-bold uppercase text-indigo-600">
+                            {{ $event->category->name ?? 'Event' }}
+                        </div>
+                        @if($event->price == 0)
+                            <div class="absolute top-4 right-4 px-3 py-1 bg-green-500 text-white rounded-lg text-xs font-bold uppercase">
+                                GRATIS
+                            </div>
+                        @endif
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2 group-hover:text-indigo-600 transition">{{ $event->title }}</h3>
+                        <p class="text-sm text-slate-500 mb-1">{{ \Carbon\Carbon::parse($event->date)->format('d M Y, H:i') }} WIB</p>
+                        <p class="text-sm text-slate-500 mb-4">{{ $event->location }}</p>
+                        <div class="flex justify-between items-center pt-4 border-t">
+                            <div>
+                                <span class="text-2xl font-black text-indigo-600">
+                                    {{ $event->price == 0 ? 'GRATIS' : 'Rp ' . number_format($event->price, 0, ',', '.') }}
+                                </span>
+                                <p class="text-xs text-slate-400">{{ $event->stock }} tiket tersisa</p>
+                            </div>
+                            <a href="{{ route('events.show', $event->id) }}"
+                               class="px-5 py-2 bg-indigo-50 text-indigo-600 rounded-xl font-bold hover:bg-indigo-600 hover:text-white transition">
+                               Lihat Detail
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
     @endif
+</section>
 
+<!-- Partners Section -->
+<section id="partners" class="max-w-7xl mx-auto px-6 py-20">
+    <div class="flex justify-between items-end mb-10">
+        <div>
+            <h2 class="text-3xl font-extrabold mb-2">Partner Kami</h2>
+            <p class="text-slate-500 font-medium">Platform AmikomEventHub didukung oleh berbagai mitra.</p>
+        </div>
+    </div>
+
+    @if($partners->isEmpty())
+        <div class="text-center py-20">
+            <div class="text-6xl mb-4">🤝</div>
+            <h3 class="text-2xl font-bold text-slate-700 mb-2">Belum ada partner terdaftar</h3>
+            <p class="text-slate-500">Partner akan segera ditambahkan.</p>
+        </div>
+    @else
+        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
+            @foreach($partners as $partner)
+                <div class="bg-white rounded-2xl shadow p-6 hover:shadow-lg transition">
+                    @if($partner->logo)
+                        <img src="{{ asset('storage/' . $partner->logo) }}" 
+                             alt="{{ $partner->name }}" 
+                             class="w-full h-32 object-contain mb-4">
+                    @else
+                        <div class="w-full h-32 bg-slate-100 flex items-center justify-center mb-4">
+                            <span class="text-4xl">🏢</span>
+                        </div>
+                    @endif
+                    <h3 class="text-lg font-bold mb-1">{{ $partner->name }}</h3>
+                    <p class="text-sm text-slate-500">{{ $partner->category->name ?? 'Tanpa Kategori' }}</p>
+                </div>
+            @endforeach
+        </div>
+    @endif
 </section>
 
 @endsection

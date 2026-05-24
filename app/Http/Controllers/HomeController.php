@@ -5,11 +5,12 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Event;
 use App\Models\Category;
+use App\Models\Partner; // tambahkan model Partner
 
 class HomeController extends Controller
 {
     /**
-     * Halaman beranda dengan filter kategori
+     * Halaman beranda dengan filter kategori + partner
      */
     public function index(Request $request)
     {
@@ -28,13 +29,17 @@ class HomeController extends Controller
             });
         }
 
-        // 4. Eksekusi query
+        // 4. Eksekusi query event
         $events = $query->get();
+
+        // 5. Ambil semua partner beserta relasi kategori
+        $partners = Partner::with('category')->latest()->get();
 
         // Simpan kategori yang sedang aktif untuk highlight tombol
         $activeCategory = $request->category ?? '';
 
-        return view('welcome', compact('events', 'categories', 'activeCategory'));
+        // Kirim semua variabel ke view
+        return view('welcome', compact('events', 'categories', 'activeCategory', 'partners'));
     }
 
     public function profil()
