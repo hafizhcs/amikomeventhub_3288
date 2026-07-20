@@ -1,84 +1,111 @@
 @extends('layouts.app')
 
-@section('title', 'E-Ticket - AmikomEventHub')
-
-@section('styles')
-<style>
-    body { background-color: #4f46e5; }
-    main { background-color: #4f46e5; }
-</style>
-@endsection
+@section('title', 'Tiket Saya - AmikomEventHub')
 
 @section('content')
-<div class="min-h-screen flex items-center justify-center p-6">
-    <div class="max-w-md w-full">
-        <!-- Success Banner -->
-        <div class="text-center mb-8 text-white">
-            <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-white">
-                <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
-                </svg>
-            </div>
-            <h1 class="text-3xl font-black">Pembayaran Berhasil!</h1>
-            <p class="text-indigo-100 mt-2">Tiket Anda telah terbit dan siap digunakan.</p>
-        </div>
-
-        <!-- Ticket Card -->
-        <div class="bg-white text-slate-900 rounded-[2.5rem] overflow-hidden shadow-2xl relative">
-            <div class="p-8 bg-indigo-50 border-b-4 border-dashed border-indigo-100 text-center relative">
-                <p class="text-indigo-600 font-bold uppercase tracking-widest text-xs mb-2">E-Ticket Resmi</p>
-                <h2 class="text-2xl font-black leading-tight">Jazz Night 2024: A Celebration</h2>
-                <div class="absolute -left-4 -bottom-4 w-8 h-8 bg-indigo-600 rounded-full"></div>
-                <div class="absolute -right-4 -bottom-4 w-8 h-8 bg-indigo-600 rounded-full"></div>
+    <div class="min-h-screen bg-slate-50/50 py-12 px-6">
+        <div class="max-w-6xl mx-auto">
+            <div class="mb-8">
+                <h1 class="text-4xl font-black text-slate-900 tracking-tight">Tiket Saya</h1>
+                <p class="text-slate-500 mt-2">Daftar semua tiket event yang telah Anda pesan.</p>
             </div>
 
-            <div class="p-8 space-y-8">
-                <div class="grid grid-cols-2 gap-6">
-                    <div>
-                        <p class="text-slate-400 text-xs font-bold uppercase mb-1">Nama Pembeli</p>
-                        <p class="font-bold text-lg">Donni Prabowo</p>
-                    </div>
-                    <div>
-                        <p class="text-slate-400 text-xs font-bold uppercase mb-1">Tanggal & Waktu</p>
-                        <p class="font-bold text-lg">16 Nov, 19:30</p>
-                    </div>
-                    <div>
-                        <p class="text-slate-400 text-xs font-bold uppercase mb-1">Order ID</p>
-                        <p class="font-bold">TRX-99210</p>
-                    </div>
-                    <div>
-                        <p class="text-slate-400 text-xs font-bold uppercase mb-1">Lokasi</p>
-                        <p class="font-bold">Blue Note Lounge</p>
-                    </div>
+            <div class="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-slate-100 bg-slate-50/75">
+                                <th class="py-5 px-8 text-xs font-bold uppercase tracking-wider text-slate-400">Order ID
+                                </th>
+                                <th class="py-5 px-6 text-xs font-bold uppercase tracking-wider text-slate-400">Event</th>
+                                <th class="py-5 px-6 text-xs font-bold uppercase tracking-wider text-slate-400">Tgl
+                                    Pemesanan</th>
+                                <th class="py-5 px-6 text-xs font-bold uppercase tracking-wider text-slate-400">Total Bayar
+                                </th>
+                                <th class="py-5 px-6 text-xs font-bold uppercase tracking-wider text-slate-400">Status</th>
+                                <th class="py-5 px-8 text-xs font-bold uppercase tracking-wider text-slate-400 text-right">
+                                    Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            @forelse($transactions as $transaction)
+                                                <tr class="hover:bg-slate-50/50 transition-colors">
+                                                    <td class="py-6 px-8 font-extrabold text-slate-800 text-sm">
+                                                        {{ $transaction->order_id }}
+                                                    </td>
+
+                                                    <td class="py-6 px-6">
+                                                        <div class="flex items-center gap-4">
+                                                            <img src="{{ (optional($transaction->event)->poster_path && Storage::disk('public')->exists($transaction->event->poster_path))
+                                ? asset('storage/' . $transaction->event->poster_path)
+                                : 'https://placehold.co/150' }}"
+                                                                alt="{{ optional($transaction->event)->title }}"
+                                                                class="w-12 h-12 rounded-2xl object-cover shadow-sm">
+                                                            <div>
+                                                                <p class="font-extrabold text-slate-900 text-sm">
+                                                                    {{ optional($transaction->event)->title ?? '-' }}
+                                                                </p>
+                                                                <p class="text-xs text-slate-400 mt-0.5">
+                                                                    {{ optional($transaction->event)->date?->format('d F Y') ?? '-' }}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+
+                                                    <td class="py-6 px-6 text-sm text-slate-500 font-medium">
+                                                        {{ $transaction->created_at->format('d M Y, H:i') }}
+                                                    </td>
+
+                                                    <td class="py-6 px-6 text-sm font-extrabold text-slate-900">
+                                                        Rp {{ number_format($transaction->total_price, 0, ',', '.') }}
+                                                    </td>
+
+                                                    <td class="py-6 px-6">
+                                                        @if(strtolower($transaction->status) === 'success')
+                                                            <span
+                                                                class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-600 border border-emerald-100">
+                                                                SUCCESS
+                                                            </span>
+                                                        @else
+                                                            <span
+                                                                class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-600 border border-amber-100">
+                                                                {{ strtoupper($transaction->status) }}
+                                                            </span>
+                                                        @endif
+                                                    </td>
+
+                                                    <td class="py-6 px-8 text-right">
+                                                        @if(strtolower($transaction->status) === 'success')
+                                                            <a href="{{ route('eticket.show', $transaction->id) }}"
+                                                                class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] text-white text-xs font-bold rounded-xl shadow-md shadow-indigo-100 transition-all whitespace-nowrap min-w-[140px]">
+                                                                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                                                                    </path>
+                                                                </svg>
+                                                                <span>Lihat E-Ticket</span>
+                                                            </a>
+                                                        @else
+                                                            <button disabled
+                                                                class="px-4 py-2.5 bg-slate-100 text-slate-400 text-xs font-bold rounded-xl cursor-not-allowed">
+                                                                Belum Tersedia
+                                                            </button>
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="6" class="py-12 text-center text-slate-400 font-medium">
+                                        Belum ada transaksi tiket yang ditemukan.
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
-
-                <div class="bg-slate-100 p-6 rounded-3xl flex flex-col items-center">
-                    <p class="text-slate-400 text-xs font-bold uppercase mb-4">Scan QR untuk Check-in</p>
-                    <div class="w-48 h-48 bg-white p-4 rounded-xl shadow-inner flex items-center justify-center">
-                        <div class="w-full h-full border-4 border-slate-900 flex flex-wrap p-1">
-                            <div class="w-1/4 h-1/4 bg-slate-900"></div><div class="w-1/4 h-1/4 bg-white"></div>
-                            <div class="w-1/4 h-1/4 bg-slate-900"></div><div class="w-1/4 h-1/4 bg-white"></div>
-                            <div class="w-1/4 h-1/4 bg-white"></div><div class="w-1/4 h-1/4 bg-slate-900"></div>
-                            <div class="w-1/4 h-1/4 bg-white"></div><div class="w-1/4 h-1/4 bg-slate-900"></div>
-                            <div class="w-1/4 h-1/4 bg-slate-900"></div><div class="w-1/4 h-1/4 bg-white"></div>
-                            <div class="w-1/4 h-1/4 bg-slate-900"></div><div class="w-1/4 h-1/4 bg-white"></div>
-                            <div class="w-1/4 h-1/4 bg-white"></div><div class="w-1/4 h-1/4 bg-slate-900"></div>
-                            <div class="w-1/4 h-1/4 bg-white"></div><div class="w-1/4 h-1/4 bg-slate-900"></div>
-                        </div>
-                    </div>
-                    <p class="mt-4 font-mono font-bold text-slate-800">TKT-001293848</p>
-                </div>
-            </div>
-
-            <div class="px-8 pb-8">
-                <button onclick="window.print()" class="w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold shadow-lg hover:bg-indigo-700 transition">
-                    Cetak / Simpan PDF
-                </button>
-                <a href="{{ route('home') }}" class="block text-center mt-4 text-slate-500 font-bold hover:text-indigo-600">
-                    Kembali ke Beranda
-                </a>
             </div>
         </div>
     </div>
-</div>
 @endsection

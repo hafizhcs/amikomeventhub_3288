@@ -47,30 +47,30 @@ class EventController extends Controller
      * CREATE (Store) - Menyimpan event baru ke database
      */
     public function store(Request $request)
-    {
-        $data = $request->validate([
-            'category_id'  => 'required|exists:categories,id',
-            'title'        => 'required|string|max:255',
-            'description'  => 'required|string',
-            'date'         => 'required|date',
-            'location'     => 'required|string|max:255',
-            'price'        => 'required|numeric|min:0',
-            'stock'        => 'required|numeric|min:1',
-            'poster'       => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-        ]);
+{
+     // Menerapkan validasi data request dari pengguna
+     $data = $request->validate([
+        'category_id' => 'required|exists:categories,id',
+        'title' => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'date' => 'required|date',
+        'location' => 'required|string|max:255',
+        'price' => 'required|numeric|min:0',
+        'stock' => 'required|numeric|min:1',
+        'poster' => 'nullable|image|max:2048' // Maksimal 2MB
+    ]);
 
-        if ($request->hasFile('poster')) {
-            $data['poster_path'] = $request->file('poster')->store('posters', 'public');
-        }
-
-        unset($data['poster']);
-
-        Event::create($data);
-
-        return redirect()->route('admin.events.index')
-            ->with('success', 'Event "' . $data['title'] . '" berhasil ditambahkan!');
+    if ($request->hasFile('poster')) {
+        // Simpan ke direktori storage/app/public/posters
+        $data['poster_path'] = $request->file('poster')->store('posters', 'public');
     }
 
+     // Menyimpan data yang telah divalidasi ke dalam tabel menggunakan Model
+     $data['organizer_id'] = auth()->id();
+     \App\Models\Event::create($data);
+
+     return redirect()->route('admin.events.index')->with('success', 'Data Event berhasil ditambahkan.');
+}
     /**
      * UPDATE (Form) - Menampilkan form edit event
      */
@@ -85,32 +85,30 @@ class EventController extends Controller
      * UPDATE (Save) - Menyimpan perubahan event ke database
      */
     public function update(Request $request, Event $event)
-    {
-        $data = $request->validate([
-            'category_id'  => 'required|exists:categories,id',
-            'title'        => 'required|string|max:255',
-            'description'  => 'required|string',
-            'date'         => 'required|date',
-            'location'     => 'required|string|max:255',
-            'price'        => 'required|numeric|min:0',
-            'stock'        => 'required|numeric|min:1',
-            'poster'       => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-        ]);
+{
+   $data = $request->validate([
+        'category_id' => 'required|exists:categories,id',
+        'title' => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'date' => 'required|date',
+        'location' => 'required|string|max:255',
+        'price' => 'required|numeric|min:0',
+        'stock' => 'required|numeric|min:1',
+        'poster' => 'nullable|image|max:2048'
+    ]); 
 
-        if ($request->hasFile('poster')) {
-            if ($event->poster_path) {
-                Storage::disk('public')->delete($event->poster_path);
-            }
-            $data['poster_path'] = $request->file('poster')->store('posters', 'public');
+    if ($request->hasFile('poster')) {
+        // Hapus gambar lama jika sebelumnya sudah memiliki poster
+        if ($event->poster_path) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($event->poster_path);
         }
-
-        unset($data['poster']);
-
-        $event->update($data);
-
-        return redirect()->route('admin.events.index')
-            ->with('success', 'Event "' . $event->title . '" berhasil diperbarui!');
+        // Upload gambar baru
+        $data['poster_path'] = $request->file('poster')->store('posters', 'public');
     }
+
+    $event->update($data);
+    return redirect()->route('admin.events.index')->with('success', 'Event berhasil diperbarui.');
+}
 
     /**
      * DELETE - Menghapus event dari database
@@ -132,8 +130,32 @@ class EventController extends Controller
     /**
      * SHOW - (Opsional, tidak dipakai di admin panel ini)
      */
-    public function show(Event $event)
-    {
-        return redirect()->route('admin.events.index');
-    }
+    public function show(\App\Models\Event $event)
+{
+   // Mengambil daftar kategori untuk keperluan menu footer
+    $categories = \App\Models\Category::all();
+    
+    // Me-render view dengan membawa data kategori dan data spesifik acara tersebut
+    return view('event-detail', compact('categories', 'event'));
+}
+
+public function pendingReview()
+{
+    $events = Event::with('category')
+        ->where('status', 'pending')
+        ->latest()
+        ->paginate(10);
+
+    return view('admin.events.pending', compact('events'));
+}
+
+public function approve(Request $request, $id)
+{
+    // Logika untuk menyetujui event, misalnya:
+     $event = Event::findOrFail($id);
+     $event->update(['status' => 'approved']);
+
+    return redirect()->back()->with('success', 'Event berhasil disetujui!');
+}
+
 }

@@ -42,29 +42,44 @@
                 </tr>
             </thead>
             <tbody class="divide-y border-t">
-                <tr class="hover:bg-slate-50/50 transition">
-                    <td class="px-8 py-6"><span class="font-mono font-bold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-lg text-sm">#TRX-99210</span></td>
-                    <td class="px-8 py-6">
-                        <p class="font-bold text-slate-800">Donni Prabowo</p>
-                        <p class="text-xs text-slate-500">donni@example.com</p>
-                    </td>
-                    <td class="px-8 py-6"><p class="font-medium text-slate-700">Jazz Night 2024</p></td>
-                    <td class="px-8 py-6 text-sm text-slate-500">26 Mar 2024, 17:45</td>
-                    <td class="px-8 py-6"><span class="px-3 py-1 bg-green-100 text-green-700 rounded-lg text-xs font-bold uppercase ring-1 ring-green-200">Success</span></td>
-                    <td class="px-8 py-6 text-right font-black text-slate-900">Rp 155.000</td>
-                </tr>
-                <tr class="hover:bg-slate-50/50 transition">
-                    <td class="px-8 py-6"><span class="font-mono font-bold bg-slate-100 px-3 py-1 rounded-lg text-sm">#TRX-99209</span></td>
-                    <td class="px-8 py-6">
-                        <p class="font-bold">Maya Sari</p>
-                        <p class="text-xs text-slate-400">maya@example.com</p>
-                    </td>
-                    <td class="px-8 py-6"><p class="font-medium">AI & Future Workshop</p></td>
-                    <td class="px-8 py-6 text-sm text-slate-400">26 Mar 2024, 15:20</td>
-                    <td class="px-8 py-6"><span class="px-3 py-1 bg-orange-100 text-orange-700 rounded-lg text-xs font-bold uppercase ring-1 ring-orange-200">Pending</span></td>
-                    <td class="px-8 py-6 text-right font-black">Rp 55.000</td>
-                </tr>
-            </tbody>
+    @foreach($transactions as $trx)
+    <tr class="hover:bg-slate-50/50 transition">
+        <td class="px-8 py-6">
+            <span class="font-mono font-bold 
+                @if($trx->status == 'success') text-indigo-600 bg-indigo-50
+                @elseif($trx->status == 'pending') bg-orange-100 text-orange-700
+                @elseif($trx->status == 'free') bg-slate-100 text-slate-600
+                @else bg-rose-100 text-rose-700 @endif
+                px-3 py-1 rounded-lg text-sm">
+                #{{ $trx->order_id }}
+            </span>
+        </td>
+        <td class="px-8 py-6">
+            <p class="font-bold text-slate-800">{{ $trx->customer_name }}</p>
+            <p class="text-xs text-slate-500">{{ $trx->customer_email }}</p>
+        </td>
+        <td class="px-8 py-6">
+            <p class="font-medium text-slate-700">{{ $trx->event->title ?? '-' }}</p>
+        </td>
+        <td class="px-8 py-6 text-sm text-slate-500">
+            {{ $trx->created_at->format('d M Y, H:i') }}
+        </td>
+        <td class="px-8 py-6">
+            <span class="px-3 py-1 rounded-lg text-xs font-bold uppercase ring-1
+                @if($trx->status == 'success') bg-green-100 text-green-700 ring-green-200
+                @elseif($trx->status == 'pending') bg-orange-100 text-orange-700 ring-orange-200
+                @elseif($trx->status == 'free') bg-slate-100 text-slate-600 ring-slate-200
+                @else bg-rose-100 text-rose-700 ring-rose-200 @endif">
+                {{ ucfirst($trx->status) }}
+            </span>
+        </td>
+        <td class="px-8 py-6 text-right font-black text-slate-900">
+            Rp {{ number_format($trx->total_price, 0, ',', '.') }}
+        </td>
+    </tr>
+    @endforeach
+</tbody>
+
         </table>
     </div>
 

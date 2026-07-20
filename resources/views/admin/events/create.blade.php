@@ -9,7 +9,7 @@
 {{-- Dibuat w-full tanpa batasan max-width agar memenuhi layar --}}
 <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm w-full">
 
-    <form action="{{ route('admin.events.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+    <form action="{{ route('admin.events.store') }}" method="POST" enctype="multipart/form-data" class="bg-white p-6 rounded-2xl border border-gray- 200 mt-2 shadow-sm">
         @csrf
 
         {{-- Judul Event --}}

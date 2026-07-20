@@ -51,6 +51,43 @@
                 Kelola Event
             </a>
 
+            <a href="{{ route('admin.ticket-prices.index') }}"
+                class="flex items-center gap-3 px-4 py-3 {{ request()->routeIs('admin.ticket-prices.*') ? 'bg-indigo-800 text-white' : 'hover:bg-indigo-800' }} rounded-xl font-bold transition">
+
+                <svg class="w-5 h-5 {{ request()->routeIs('admin.ticket-prices.*') ? 'text-indigo-300' : 'text-indigo-400' }}"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 8c-1.657 0-3 1.343-3 3s1.343 3 3 3 3-1.343 3-3-1.343-3-3-3zm0-6C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 18a8 8 0 110-16 8 8 0 010 16z">
+                    </path>
+
+                </svg>
+
+                <span>Kelola Dynamic Pricing</span>
+
+            </a>
+
+            <a href="{{ route('admin.organizations.index') }}"
+                class="flex items-center gap-3 px-4 py-3 {{ request()->routeIs('admin.organizations.*') ? 'bg-indigo-800 text-white' : 'hover:bg-indigo-800' }} rounded-xl font-bold transition">
+                <svg class="w-5 h-5 {{ request()->routeIs('admin.organizations.*') ? 'text-indigo-300' : 'text-indigo-400' }}"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 6v-3a1 1 0 011-1h2a1 1 0 011 1v3">
+                    </path>
+                </svg>
+                Kelola Organisasi
+            </a>
+
+            <a href="{{ route('admin.events.pending') }}"
+                class="flex items-center gap-3 px-4 py-3 {{ request()->routeIs('admin.events.pending') ? 'bg-indigo-800 text-white' : 'hover:bg-indigo-800' }} rounded-xl font-bold transition">
+                <svg class="w-5 h-5 {{ request()->routeIs('admin.events.pending') ? 'text-indigo-300' : 'text-indigo-400' }}"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Review Event Organizer
+            </a>
+
             <a href="{{ route('admin.categories.index') }}"
                 class="flex items-center gap-3 px-4 py-3 {{ request()->routeIs('admin.categories.*') ? 'bg-indigo-800 text-white' : 'hover:bg-indigo-800' }} rounded-xl font-bold transition">
                 <svg class="w-5 h-5 {{ request()->routeIs('admin.categories.*') ? 'text-indigo-300' : 'text-indigo-400' }}"
@@ -71,6 +108,16 @@
                 Kelola Partner
             </a>
 
+            <a href="{{ route('admin.coupons.index') }}"
+                class="flex items-center gap-3 px-4 py-3 {{ request()->routeIs('admin.coupons.*') ? 'bg-indigo-800 text-white' : 'hover:bg-indigo-800' }} rounded-xl font-bold transition">
+                <svg class="w-5 h-5 {{ request()->routeIs('admin.coupons.*') ? 'text-indigo-300' : 'text-indigo-400' }}"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+                </svg>
+                Kelola Voucher
+            </a>
+
             <a href="{{ route('admin.transactions.index') }}"
                 class="flex items-center gap-3 px-4 py-3 {{ request()->routeIs('admin.transactions.*') ? 'bg-indigo-800 text-white' : 'hover:bg-indigo-800' }} rounded-xl font-bold transition">
                 <svg class="w-5 h-5 {{ request()->routeIs('admin.transactions.*') ? 'text-indigo-300' : 'text-indigo-400' }}"
@@ -84,16 +131,21 @@
         </nav>
 
         <div class="pt-6 border-t border-indigo-800">
-            <a href="{{ route('home') }}"
-                class="flex items-center gap-3 px-4 py-3 text-indigo-300 hover:text-white transition font-medium">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
-                    </path>
-                </svg>
-                Keluar ke Website
-            </a>
+            <form id="logoutForm" action="{{ route('admin.logout') }}" method="POST">
+                @csrf
+                <button type="submit"
+                    class="w-full flex items-center gap-3 px-4 py-3 text-indigo-300 hover:text-white transition font-medium text-left">
+                    <!-- Ikon Logout -->
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
+                        </path>
+                    </svg>
+                    Keluar & Pergi ke Website
+                </button>
+            </form>
         </div>
+
     </aside>
 
     <!-- Main Content -->

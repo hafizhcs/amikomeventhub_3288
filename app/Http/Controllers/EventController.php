@@ -4,9 +4,32 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Event;
+use App\Models\Transaction;
 
 class EventController extends Controller
+
 {
+    /**
+     * Halaman detail event
+     */
+    public function showTicket($id)
+{
+    $transaction = Transaction::findOrFail($id);
+
+    // Ambil email user yang sedang login
+    $userEmail = auth()->user()->email;
+
+    // Cocokkan email user dengan email di data transaksi
+    if ($userEmail !== $transaction->customer_email) {
+        abort(403, 'Akses ditolak. Ini bukan tiket Anda.');
+    }
+
+    $transaction->load(['event']);
+
+    return view('e-ticket', [
+        'transactions' => collect([$transaction])
+    ]);
+}
     /**
      * Halaman daftar event (index + search)
      */
@@ -31,7 +54,8 @@ class EventController extends Controller
      */
     public function show($id)
     {
-        $event = Event::with('category')->findOrFail($id);
+        // Event yang belum/tidak lolos review superadmin tidak boleh diakses publik
+        $event = Event::with(['category', 'ratings.user'])->approved()->findOrFail($id);
         return view('event-detail', compact('event'));
     }
 
@@ -49,6 +73,12 @@ class EventController extends Controller
      */
     public function ticket()
     {
-        return view('ticket');
+        $transactions = \App\Models\Transaction::with('event')
+            ->where('customer_email', auth()->user()->email)
+            ->whereIn('status', ['settlement', 'success', 'capture'])
+            ->latest()
+            ->get();
+
+        return view('ticket', compact('transactions'));
     }
 }
