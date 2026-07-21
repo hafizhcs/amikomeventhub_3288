@@ -7,6 +7,7 @@ use App\Models\Event;
 use App\Models\Organization;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
+use App\Models\User;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -78,30 +79,47 @@ class OrganizerController extends Controller
      * Dashboard utama organizer: status organisasi, ringkasan pendapatan,
      * dan daftar event miliknya.
      */
-    public function dashboard()
-    {
-        $organization = auth()->user()->organization;
+   public function dashboard()
+{
+    $organization = auth()->user()->organization;
 
-        $events = Event::where('organization_id', $organization->id)->latest()->get();
+    $events = Event::where('organization_id', $organization->id)->latest()->get();
 
-        $totalRevenue = Transaction::whereIn('event_id', $events->pluck('id'))
-            ->whereIn('status', ['settlement', 'success'])
-            ->sum('total_price');
+    $totalRevenue = Transaction::whereIn('event_id', $events->pluck('id'))
+        ->whereIn('status', ['settlement', 'success'])
+        ->sum('total_price');
 
-        $ticketsSold = Transaction::whereIn('event_id', $events->pluck('id'))
-            ->whereIn('status', ['settlement', 'success'])
-            ->count();
+    $ticketsSold = Transaction::whereIn('event_id', $events->pluck('id'))
+        ->whereIn('status', ['settlement', 'success'])
+        ->count();
 
-        $pendingReview = $events->where('status', Event::STATUS_PENDING)->count();
+    $pendingReview = $events->where('status', Event::STATUS_PENDING)->count();
 
-        return view('organizer.dashboard', compact(
-            'organization',
-            'events',
-            'totalRevenue',
-            'ticketsSold',
-            'pendingReview'
-        ));
+    // --- LOGIKA DATA GRAFIK PERTUMBUHAN EVENT ---
+    $eventsPerMonth = Event::where('organization_id', $organization->id)
+        ->selectRaw('MONTH(date) as month, COUNT(*) as total')
+        ->whereYear('date', date('Y'))
+        ->groupBy('month')
+        ->orderBy('month')
+        ->pluck('total', 'month');
+
+    $chartLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
+    $chartData = [];
+    
+    for ($i = 1; $i <= 12; $i++) {
+        $chartData[] = $eventsPerMonth[$i] ?? 0;
     }
+
+    return view('organizer.dashboard', compact(
+        'organization',
+        'events',
+        'totalRevenue',
+        'ticketsSold',
+        'pendingReview',
+        'chartLabels',
+        'chartData'
+    ));
+}
 
     public function eventsIndex()
     {
@@ -204,4 +222,32 @@ class OrganizerController extends Controller
             abort(403, 'Anda tidak berhak mengelola event ini.');
         }
     }
+
+public function show($id)
+    {
+        // Cek terlebih dahulu apakah ID tersebut terdaftar sebagai Organization (Organizer)
+        $organizer = Organization::with(['events.ratings.user', 'events.ratings.event'])->find($id);
+
+        if ($organizer) {
+            // Alur untuk Organizer (berdasarkan Organisasi)
+            $events = $organizer->events()->latest()->get();
+            $reviews = $organizer->events->flatMap->ratings;
+        } else {
+            // Alur jika Super Admin / User (ambil langsung dari tabel Event berdasarkan organizer_id)
+            $organizer = User::findOrFail($id);
+            
+            $events = Event::with(['ratings.user', 'ratings.event'])
+                        ->where('organizer_id', $id)
+                        ->latest()
+                        ->get();
+                        
+            $reviews = $events->flatMap->ratings;
+        }
+
+        // Sesuaikan path view dengan lokasi file blade Anda (misal: 'admin.organizer.show' atau 'organizer.show')
+        return view('organizer.show', compact('organizer', 'events', 'reviews'));
+    }
+
+
+
 }

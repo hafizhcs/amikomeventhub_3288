@@ -148,18 +148,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/events/{event}/reject', [AdminEventController::class, 'reject'])->name('events.reject');
     });
 
-    Route::get('/api/trigger-cleanup', function () {
-    // Cek apakah sudah 5 menit sejak pembersihan terakhir
-    if (!Cache::has('ticket_cleanup_timer')) {
-        app(CheckoutController::class)->releaseExpiredReservations();
-        
-        // Simpan cache selama 5 menit
-        Cache::put('ticket_cleanup_timer', true, now()->addMinutes(5));
-    }
-
-    return response()->json(['status' => 'checked']);
-    });
 
     // Webhook Payment Gateway (Midtrans)
     Route::post('/midtrans/callback', [\App\Http\Controllers\MidtransWebhookController::class, 'handle']);
 });
+Route::get('/organizer/{id}', [OrganizerController::class, 'show'])->name('organizer.show');

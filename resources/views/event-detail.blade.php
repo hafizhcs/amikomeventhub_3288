@@ -64,7 +64,8 @@
                         {{-- Organizer Details (Nama diambil dari relasi database organizer) --}}
                         <div class="flex-1 min-w-0">
                             <p class="font-bold text-slate-800 truncate text-base">
-                                {{ $event->organizer->name ?? 'Nama Penyelenggara' }}</p>
+                                {{ $event->organizer->name ?? 'Nama Penyelenggara' }}
+                            </p>
                             <div class="flex items-center gap-1.5 text-indigo-600 mt-0.5">
                                 <svg class="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd"
@@ -74,10 +75,9 @@
                                 <p class="text-[9px] font-extrabold uppercase tracking-wider">Verified Organizer</p>
                             </div>
                         </div>
-
                         {{-- Rating Badge (Dihitung dari data rating event di database) --}}
-                        <div
-                            class="bg-slate-50 border border-slate-100 rounded-2xl px-3 py-2.5 text-center shrink-0 min-w-[70px]">
+                        <a href="{{ route('organizer.show', $event->organizer_id) }}"
+                            class="bg-slate-50 border border-slate-100 hover:border-indigo-200 hover:bg-indigo-50/30 rounded-2xl px-3 py-2.5 text-center shrink-0 min-w-[85px] transition group block">
                             <div class="inline-flex items-center gap-1 text-amber-500 font-bold text-sm">
                                 <svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
                                     <path
@@ -85,8 +85,11 @@
                                 </svg>
                                 <span>{{ number_format($event->average_rating ?? $event->ratings->avg('score') ?? 0, 1) }}</span>
                             </div>
-                            <p class="text-[10px] font-bold text-slate-400 mt-0.5">{{ $event->ratings->count() }} ulasan</p>
-                        </div>
+                            <p class="text-[10px] font-bold text-slate-400 mt-0.5 group-hover:text-indigo-600 transition">
+                                {{ $event->ratings->count() }} ulasan
+                            </p>
+                            <span class="text-[9px] font-extrabold text-indigo-600 block mt-1 underline">Lihat Detail</span>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -120,7 +123,8 @@
                         <div class="min-w-0">
                             <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Tanggal</p>
                             <p class="text-xs font-bold text-slate-700 truncate">
-                                {{ \Carbon\Carbon::parse($event->date)->translatedFormat('l, d F Y') }}</p>
+                                {{ \Carbon\Carbon::parse($event->date)->translatedFormat('l, d F Y') }}
+                            </p>
                         </div>
                     </div>
 
@@ -135,7 +139,8 @@
                         <div class="min-w-0">
                             <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Waktu Mulai</p>
                             <p class="text-xs font-bold text-slate-700 truncate">
-                                {{ \Carbon\Carbon::parse($event->date)->format('H:i') }} WIB</p>
+                                {{ \Carbon\Carbon::parse($event->date)->format('H:i') }} WIB
+                            </p>
                         </div>
                     </div>
 
@@ -206,7 +211,7 @@
                                     <span class="text-sm font-semibold">{{ $ticket->category }}</span>
                                     <span
                                         class="text-lg font-bold 
-                                {{ $ticket->category == 'Early Bird' ? 'text-green-400' : ($ticket->category == 'Presale' ? 'text-yellow-400' : 'text-red-400') }}">
+                                        {{ $ticket->category == 'Early Bird' ? 'text-green-400' : ($ticket->category == 'Presale' ? 'text-yellow-400' : 'text-red-400') }}">
                                         Rp {{ number_format($ticket->price, 0, ',', '.') }}
                                     </span>
                                     <span class="text-xs text-indigo-200">s/d

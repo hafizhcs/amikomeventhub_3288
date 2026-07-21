@@ -17,6 +17,7 @@
     </div>
 @endif
 
+<!-- Kartu Statistik Ringkas -->
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
     <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
         <p class="text-slate-400 text-sm font-bold uppercase mb-1">Total Pendapatan</p>
@@ -32,6 +33,20 @@
     </div>
 </div>
 
+<!-- Bagian Grafik Pertumbuhan Penyelenggaraan Event -->
+<div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm mb-10">
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h2 class="text-lg font-black text-slate-900">Grafik Pertumbuhan Event</h2>
+            <p class="text-xs text-slate-500 mt-0.5">Statistik jumlah event yang diselenggarakan per bulan pada tahun ini</p>
+        </div>
+    </div>
+    <div class="relative h-72 w-full">
+        <canvas id="eventGrowthChart"></canvas>
+    </div>
+</div>
+
+<!-- Tabel Event Terbaru -->
 <div class="flex items-center justify-between mb-4">
     <h2 class="text-lg font-black">Event Terbaru</h2>
     @if ($organization->isApproved())
@@ -75,4 +90,54 @@
         </tbody>
     </table>
 </div>
+
+<!-- Script Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const ctx = document.getElementById('eventGrowthChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: @json($chartLabels),
+                datasets: [{
+                    label: 'Event Dibuat',
+                    data: @json($chartData),
+                    borderColor: '#059669', // Warna hijau emerald agar senada
+                    backgroundColor: 'rgba(5, 150, 105, 0.05)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.35,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#059669'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        },
+                        grid: {
+                            color: '#f8fafc'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
 @endsection

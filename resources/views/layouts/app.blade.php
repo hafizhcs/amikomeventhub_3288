@@ -168,10 +168,7 @@
         }
     });
 
-    // Menjalankan pembersihan otomatis di background saat halaman dimuat
-    window.addEventListener('load', function() {
-        fetch('/api/trigger-cleanup').catch(err => console.log('Cleanup background error'));
-    });
+
 </script>
     @yield('scripts')
 </body>

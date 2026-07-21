@@ -245,9 +245,5 @@ class CheckoutController extends Controller
         }
     }
 
-    public function __construct()
-    {
-        // Setiap kali ada controller turunan yang dipanggil, jalankan pembersihan ini
-        app(\App\Http\Controllers\CheckoutController::class)->releaseExpiredReservations();
-    }
+
 }
